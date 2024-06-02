@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Experience {
+  id             String                @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  company        String
+  startDate      String
+  endDate        String
+  role           String?
+  description    String
+  link           String?
+  workedProjects CompanyProject[]
+  techStacks     ExperienceTechStack[]
+  order          Int?
+}
+
+model CompanyProject {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  experienceId String     @db.ObjectId
+  experience   Experience @relation(fields: [experienceId], references: [id])
+  link         String?
+  projectName  String
+  order        Int?
+}
+
+model ExperienceTechStack {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  experienceId String     @db.ObjectId
+  experience   Experience @relation(fields: [experienceId], references: [id])
+  techStackId  String     @db.ObjectId
+  techStack    TechStack  @relation(fields: [techStackId], references: [id])
+  order        Int?
+}
+
+model ProjectsTechStack {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  projectId   String    @db.ObjectId
+  project     Project   @relation(fields: [projectId], references: [id])
+  techStackId String    @db.ObjectId
+  techStack   TechStack @relation(fields: [techStackId], references: [id])
+  order       Int?
+}
+
+model Project {
+  id         String              @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  details    String
+  link       String
+  cover      String?
+  order      Int?
+  techStacks ProjectsTechStack[]
+  isDone     Boolean             @default(true)
+}
+
+model TechStack {
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  ExperienceTechStack ExperienceTechStack[]
+  techStacks          ProjectsTechStack[]
+}
